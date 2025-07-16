@@ -4,7 +4,6 @@ import { RTE, Button, Input, Select } from "../index";
 import service from "../../appwrite/config";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import service from "../../appwrite/config";
 
 function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } =
@@ -18,14 +17,23 @@ function PostForm({ post }) {
     });
 
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.user.userData);
+  const userData = useSelector((state) => state.auth.userData);
 
   const submit = async (data) => {
+    // if (!userData || !userData.$id) {
+    //   alert("User not logged in.");
+    //   return;
+    // }
+
     if (post) {
-      const file = data.image[0] ? service.uploadFile(data.image[0]) : null;
+      const file = data.image[0]
+        ? await service.uploadFile(data.image[0], userData.$id)
+        : null;
+
       if (file) {
         service.deleteFile(post.featuredImage);
       }
+
       const dbPost = await service.updatePost(post.$id, {
         ...data,
         featuredImage: file ? file.$id : undefined,
@@ -35,7 +43,17 @@ function PostForm({ post }) {
         navigate(`/post/${dbPost.$id}`);
       }
     } else {
+      // if (!userData) {
+      //   alert("User not logged in!");
+      //   return;
+      // }
+
       const file = await service.uploadFile(data.image[0]);
+
+      // if (!file || !file.$id) {
+      //   alert("Image upload failed");
+      //   return;
+      // }
 
       if (file) {
         const fileId = file.$id;

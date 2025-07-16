@@ -19,6 +19,7 @@ function Login() {
       const session = await authService.logIn(data);
       if (session) {
         const userData = await authService.getCurrentUser();
+        console.log("user logged in:", userData);
         if (userData) dispatch(authLogin(userData));
         navigate("/");
       }
@@ -38,7 +39,7 @@ function Login() {
           </span>
         </div>
         <h2 className="text-center text-2xl font-bold leading-tight">
-          Sign in to your account
+          Log in to your account
         </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Don&apos;t have any account?&nbsp;
@@ -74,7 +75,7 @@ function Login() {
               })}
             />
             <Button type="submit" className="w-full">
-              Signin
+              Login
             </Button>
           </div>
         </form>

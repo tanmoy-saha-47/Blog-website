@@ -1,5 +1,13 @@
-import conf from "../conf.js";
-import { Client, ID, Databases, Storage, Query } from "appwrite";
+import conf from "../conf/conf.js";
+import {
+  Client,
+  ID,
+  Databases,
+  Storage,
+  Query,
+  Permission,
+  Role,
+} from "appwrite";
 
 export class Service {
   client = new Client();
@@ -10,13 +18,13 @@ export class Service {
       .setEndpoint(conf.appwriteUrl)
       .setProject(conf.appwriteProjectId);
     this.databases = new Databases(this.client);
-    this.bucket = new Storage(this.bucket);
+    this.bucket = new Storage(this.client);
   }
   async createPost({ title, slug, content, featuredImage, status, userId }) {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollecttionId,
+        conf.appwriteCollectionId,
         slug,
         {
           title,
@@ -35,7 +43,7 @@ export class Service {
     try {
       return await this.databases.updateDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollecttionId,
+        conf.appwriteCollectionId,
         slug,
         {
           title,
@@ -53,7 +61,7 @@ export class Service {
     try {
       await this.databases.deleteDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollecttionId,
+        conf.appwriteCollectionId,
         slug
       );
       return true;
@@ -67,7 +75,7 @@ export class Service {
     try {
       return await this.databases.getDocument(
         conf.appwriteDatabaseId,
-        conf.appwriteCollecttionId,
+        conf.appwriteCollectionId,
         slug
       );
     } catch (error) {
@@ -76,30 +84,30 @@ export class Service {
     }
   }
 
-  async getPosts(queries = [Query.equal("staus", "active")]) {
+  async getPosts(queries = [Query.equal("status", "active")]) {
     try {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
-        conf.appwriteCollecttionId,
+        conf.appwriteCollectionId,
         queries
       );
     } catch (error) {
       throw error;
-      return false;
     }
   }
 
   //file upload service
-  async uploadFile(file) {
+  async uploadFile(file, userId) {
     try {
       return await this.bucket.createFile(
         conf.appwriteBucketId,
         ID.unique(),
         file
+        // [Permission.read(Role.user(userId))]
       );
     } catch (error) {
+      console.error("Upload error:", error);
       throw error;
-      return false;
     }
   }
 

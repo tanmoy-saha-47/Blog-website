@@ -42,9 +42,8 @@ export class AuthService {
     try {
       return await this.Account.get();
     } catch (error) {
-      throw error;
+      return null;
     }
-    return null;
   }
 
   async logOut() {
